@@ -15,7 +15,7 @@ and much of the installation instructions from here https://github.com/jacksegal
 google-cloud-auto-snapshot.sh will:
 
 - Determine all Compute Engine Disks in the current project, regardless of
-- Take a snapshot of all disks - snapshots prefixed autogcs-{DISK_NAME-YYYY-MM-DD-sssssssss}
+- Take a snapshot of all disks (without label 'backup=no') - snapshots prefixed autogcs-{DISK_NAME-YYYY-MM-DD-sssssssss}
 - The script will then delete all associated snapshots taken by the script that are older than 60 days or the value of the environment variable DAYS_RETENTION.
 
 
@@ -28,7 +28,8 @@ google-cloud-auto-snapshot.sh will:
 
 Install the script on any single server ( it will back up ALL disks in a project regardless of the server), the script doesn't even have to run on Google Compute Engine instance, any linux machine will work.
 
-**Install Script**: Download the latest version of the snapshot script and make it executable, e.g. ```
+**Install Script**: Download the latest version of the snapshot script and make it executable, e.g.
+```
 cd ~
 wget https://gitlab.com/alan8/google-cloud-auto-snapshot/raw/master/google-cloud-auto-snapshot.sh
 chmod +x google-cloud-auto-snapshot.sh
@@ -84,6 +85,6 @@ sudo /opt/google-cloud-auto-snapshot/google-cloud-auto-snapshot.sh
 Snapshots are kept for 60 days by default.  You can change this with an environment variable DAYS_RETENTION.
 
 ## Limitations, possible future enhancements
-* Works for all disks in a project, can't be selective
+* ~~Works for all disks in a project, can't be selective~~
 * Only works for default project for the gcloud environment ( see  gcloud info )
 * Only manages snapshots created by the script ( prefixed autogcs- )
