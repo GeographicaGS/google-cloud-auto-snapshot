@@ -1,9 +1,12 @@
 
 # Automatic Snapshots for Google Compute Engine
 
-This is a background bash script to automatically snapshot all Google Compute Engine disks in a Google cloud project.
+This is a Docker / Kubernetes ready bash script to to automatically snapshot Google Compute Engine disks in a Google cloud project.
 
-Google snapshots are incremental, and don't need to be deleted. If you delete an earlier snapshot the block are automatically migrated to the later snapshot.  So deleting snapshots does not save space, but for convenience, rather than an infinitely long list, it is useful to purge earlier snapshots assuming that you would never need granularity. This script will default to 60 days. You can change this behavior with an environment variable of DAYS_RETENTION.
+
+## To consider in advance
+
+Google snapshots are incremental, and don't need to be deleted. If you delete an earlier snapshot the block are automatically migrated to the later snapshot. So deleting snapshots does not save space, but for convenience, rather than an infinitely long list, it is useful to purge earlier snapshots assuming that you would never need granularity. This script will default to 60 days. You can change this behavior with the environment variable `DAYS_RETENTION`.
 
 **For a more detailed description of what the commands do please visit [http://badlywired.com/google-compute-engine-snapshot-automation/](http://badlywired.com/2016/12/google-compute-engine-snapshot-automation/)**
 
@@ -14,31 +17,35 @@ and much of the installation instructions from here https://github.com/jacksegal
 ## How it works
 google-cloud-auto-snapshot.sh will:
 
-- Determine all Compute Engine Disks in the current project, regardless of
-- Take a snapshot of all disks (without label 'backup=no') - snapshots prefixed autogcs-{DISK_NAME-YYYY-MM-DD-sssssssss}
-- The script will then delete all associated snapshots taken by the script that are older than 60 days or the value of the environment variable DAYS_RETENTION.
+- Determine all Compute Engine Disks in the current project that do not have label 'backup=no'. This filter can be supplemented or edited with the environment variable `DISK_FILTER`.
+- Take a snapshot of selected Disks and prefix their backups with `autogcs-{DISK_NAME-YYYY-MM-DD-sssssssss}`.
+- Delete all associated snapshots taken by the script that are older than 60 days. This can be edited with the environment variable  `DAYS_RETENTION`.
 
+## Using with Docker
+Documentation in progress.
 
-## Prerequisites
+## Using with Kubernetes
+Documentation in progress.
+
+## Using locally
+
+### Prerequisites
 
 * the gcloud SDK must be install which includes the gcloud cli [https://cloud.google.com/sdk/downloads](https://cloud.google.com/sdk/downloads)
 * the gcloud project must be set to the project that owns the disks
 
-## Installation
+### Installation
 
-Install the script on any single server ( it will back up ALL disks in a project regardless of the server), the script doesn't even have to run on Google Compute Engine instance, any linux machine will work.
+Install the script (the script doesn't even have to run on Google Compute Engine instance, any linux machine will work).
 
 **Install Script**: Download the latest version of the snapshot script and make it executable, e.g.
 ```
-cd ~
-wget https://gitlab.com/alan8/google-cloud-auto-snapshot/raw/master/google-cloud-auto-snapshot.sh
-chmod +x google-cloud-auto-snapshot.sh
 sudo mkdir -p /opt/google-cloud-auto-snapshot
-sudo mv google-cloud-auto-snapshot.sh /opt/google-cloud-auto-snapshot/
+sudo wget -P /opt/google-cloud-auto-snapshot/ https://raw.githubusercontent.com/GeographicaGS/google-cloud-auto-snapshot/master/google-cloud-auto-snapshot.sh
 ```
 
 
-**Setup CRON**: You should then setup a cron job in order to schedule a snapshot as often as you like, e.g. for daily cron:
+**Setup CRON**: You should then setup a cron job (`crontab -e`) in order to schedule a snapshot as often as you like, e.g. for daily cron:
 ```
 0 5 * * * root /opt/google-cloud-auto-snapshot/google-cloud-auto-snapshot.sh >> /var/log/cron/snapshot.log 2>&1
 ```
@@ -77,14 +84,10 @@ sudo nano /etc/logrotate.d/cron
 
 **To manually test the script:**
 ```
-sudo /opt/google-cloud-auto-snapshot/google-cloud-auto-snapshot.sh
+/opt/google-cloud-auto-snapshot/google-cloud-auto-snapshot.sh
 ```
 
-## Snapshot Retention
-
-Snapshots are kept for 60 days by default.  You can change this with an environment variable DAYS_RETENTION.
-
 ## Limitations, possible future enhancements
-* ~~Works for all disks in a project, can't be selective~~
+* Prometheus integration
 * Only works for default project for the gcloud environment ( see  gcloud info )
-* Only manages snapshots created by the script ( prefixed autogcs- )
+* Only manages snapshots created by the script ( prefixed `autogcs-` )
