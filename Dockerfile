@@ -8,7 +8,6 @@ RUN apk add --no-cache \
     coreutils
 
 COPY google-cloud-auto-snapshot.sh  /opt/
-# COPY entrypoint.sh                  /opt/
+COPY start.sh                       /opt/
 
-# ENTRYPOINT /opt/entrypoint.sh
-CMD [ "/opt/google-cloud-auto-snapshot.sh" ]
+CMD [ "/opt/start.sh" ]
