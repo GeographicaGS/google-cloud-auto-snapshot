@@ -21,6 +21,15 @@ google-cloud-auto-snapshot.sh will:
 - Take a snapshot of selected Disks and prefix their backups with `autogcs-{DISK_NAME-YYYY-MM-DD-sssssssss}`.
 - Delete all associated snapshots taken by the script that are older than 60 days. This can be edited with the environment variable  `DAYS_RETENTION`.
 
+## Permissions required
+You must create a function (in section IAM & administration) with the next permissions:
+- compute.disks.list
+- compute.snapshots.list
+- compute.disks.createSnapshot
+- compute.snapshots.create
+- compute.snapshots.delete
+- compute.snapshots.get
+
 ## Using with Docker
 Documentation in progress.
 
@@ -88,6 +97,7 @@ sudo nano /etc/logrotate.d/cron
 ```
 
 ## Limitations, possible future enhancements
-* Prometheus integration
+* Prometheus integration.
+* Gcloud configuration by environment variables.
 * Only works for default project for the gcloud environment ( see  gcloud info )
 * Only manages snapshots created by the script ( prefixed `autogcs-` )
