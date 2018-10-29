@@ -1,0 +1,40 @@
+
+# https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: gcloud-volume-backup
+  labels:
+    git: "GeographicaGS.google-cloud-auto-snapshot"
+spec:
+  schedule: "0 */6 * * *"
+#  schedule: "@daily"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: app
+            image: geographica/google-cloud-auto-snapshot:latest
+            imagePullPolicy: Always
+            env:
+            - name: GCLOUD_ACCOUNT_FILE
+              value: "/tmp/gcloud-credentials/my-credentials.json"
+            - name: CLOUDSDK_CORE_PROJECT
+              value: "my-project-name"
+            # - name: DAYS_RETENTION
+            #   value: "35"
+            # - name: DISK_FILTER
+            #   value: "NOT name~'(gke-example.*|geo-.*)'"
+            volumeMounts:
+            - name: gcloud-credentials
+              mountPath: /tmp/gcloud-credentials
+              readOnly: true
+          volumes:
+          - name: gcloud-credentials
+            secret:
+              secretName: gcloud-volume-backup-secrets
+              items:
+                - key: credentials.json
+                  path: my-credentials.json

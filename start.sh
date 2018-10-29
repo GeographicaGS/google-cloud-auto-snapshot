@@ -1,5 +1,5 @@
-
 #!/bin/bash
+
 # Allow run ./google-cloud-auto-snapshot.sh in a loop if a delay is
 # configured ($SLEEP environment variable in seconds) or a flag
 # ($FOREVER environment variable set to 'yes').
@@ -17,15 +17,24 @@ run() {
     fi
 }
 
+login() {
+    gcloud auth activate-service-account --key-file=$GCLOUD_ACCOUNT_FILE
+}
+
 if [[ ! -z "${SLEEP}" && -z "${FOREVER}" ]]; then
     # If sleep is defined and not forever, edit forever!
     FOREVER=yes
+else
+    set -e
 fi
 
 # Default to every 6 hours
 SLEEP=${SLEEP:=21600}
 
 while true; do
+    if [[ ! -z "${GCLOUD_ACCOUNT_FILE}" ]]; then
+        login
+    fi
     run
     if [ "${FOREVER}" != "yes" ]; then
         break;
